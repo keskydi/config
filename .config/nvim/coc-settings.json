@@ -3,3 +3,11 @@
   "$HOME/.cargo/**",
   "$HOME/.rustup/**"
 ],
+{
+    "coc.preferences.formatOnSaveFiletypes": [
+        "rust"
+    ],
+    "coc.preferences.formatOnType": [
+        "rust"
+    ],
+}
