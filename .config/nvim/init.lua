@@ -1,7 +1,7 @@
 -- always set leader first!
 vim.keymap.set("n", "<Space>", "<Nop>", { silent = true })
 vim.g.mapleader = ','
- 
+
 -------------------------------------------------------------------------------
 --
 -- preferences
@@ -9,8 +9,8 @@ vim.g.mapleader = ','
 -------------------------------------------------------------------------------
 vim.o.number = true -- Show line number on the side
 vim.o.relativenumber = true
--- vim.o.tabstop = 4
--- vim.o.shiftwidth = 4
+vim.o.tabstop = 4
+vim.o.shiftwidth = 4
 --vim.o.ai = true --Auto indent
 --vim.o.si = true --Smart indent
 --vim.o.incsearch = true -- Search as typing
@@ -25,7 +25,7 @@ vim.o.smartcase = true -- but smart
 -- vim.o.guicursor = "" -- Keep terminal emulator defined GUI cursor style
 vim.o.autoread= true -- Set to auto read when a file is changed from the outside
 vim.o.magic = true --For regular expressions turn magic on
---vim.o.backspace=2 -- Make backspace behave in a sane manner
+-- vim.o.backspace=2 -- Make backspace behave in a sane manner
 vim.o.backspace=[[indent,eol,start]]
 vim.opt.list = true -- enable the below listchars
 vim.opt.listchars = { tab = '| ', trail = '·' }
@@ -35,7 +35,8 @@ vim.opt.colorcolumn = '80'
 --- except in Rust where the rule is 100 characters
 vim.api.nvim_create_autocmd('Filetype', { pattern = 'rust', command = 'set colorcolumn=100' })
 vim.api.nvim_create_autocmd('Filetype', { pattern = 'json', command = 'set formatprg=jq' })
-
+-- Change the vim shell for syntastic (can't handle fish)
+vim.o.shell="bash"
 
 -------------------------------------------------------------------------------
 --
@@ -47,6 +48,61 @@ vim.api.nvim_set_keymap('n','<leader><leader>','<c-^>',{})
 vim.api.nvim_set_keymap('n','<leader><space>',':noh<cr>',{})
 vim.api.nvim_set_keymap('n','<leader>p','"_dP',{})
 --vim.api.nvim_set_keymap('n','<leader>nt',':NERDTreeToggle<cr>',{})
+
+-- insert new line without going into insert mode
+vim.api.nvim_set_keymap('n','<leader>o','o<esc>',{})
+vim.api.nvim_set_keymap('n','<leader>O','O<esc>',{})
+
+-- Use K to show documentation in preview window
+function _G.show_docs()
+    local cw = vim.fn.expand('<cword>')
+    if vim.fn.index({'vim', 'help'}, vim.bo.filetype) >= 0 then
+        vim.api.nvim_command('h ' .. cw)
+    elseif vim.api.nvim_eval('coc#rpc#ready()') then
+        vim.fn.CocActionAsync('doHover')
+    else
+        vim.api.nvim_command('!' .. vim.o.keywordprg .. ' ' .. cw)
+    end
+end
+
+-- Use K to show documentation in preview window
+function _G.show_more_docs()
+	if vim.api.nvim_eval('coc#float#has_float') then
+		vim.fn.CocActionAsync('coc#float#jump()')
+		vim.api.nvim_set_keymap("<buffer>", "q", "<Cmd>close<CR>",{})
+	end
+end
+
+vim.cmd(
+[[
+	function! ShowMoreDocumentation()
+		if coc#float#has_float()
+			call coc#float#jump()
+			nnoremap <buffer> q <Cmd>close<CR>
+		endif
+	endfunction
+
+]])
+
+local opts = {silent = true, nowait = true, expr = true}
+vim.api.nvim_set_keymap("n", "K", '<CMD>lua _G.show_docs()<CR>', {silent = true})
+vim.api.nvim_set_keymap("n", "M", ':call ShowMoreDocumentation()<CR>', {silent = true})
+
+-- Remap
+vim.api.nvim_set_keymap("n", "<C-d>", "<C-d>zz",{})
+vim.api.nvim_set_keymap("n", "<C-u>", "<C-u>zz",{})
+vim.api.nvim_set_keymap("n", "n", "nzzzv",{})
+vim.api.nvim_set_keymap("n", "N", "Nzzzv",{})
+
+-- greatest remap ever
+vim.api.nvim_set_keymap("x", "<leader>p", [["_dP]],{})
+
+-- next greatest remap ever : asbjornHaland
+vim.api.nvim_set_keymap("n", "<leader>y", [["+y]],{})
+vim.api.nvim_set_keymap("v", "<leader>y", [["+y]],{})
+vim.api.nvim_set_keymap("n", "<leader>Y", [["+Y]],{})
+
+
 -------------------------------------------------------------------------------
 --
 -- autocommands
@@ -69,6 +125,7 @@ if not vim.loop.fs_stat(lazypath) then
 	})
 end
 vim.opt.rtp:prepend(lazypath)
+
 -- then, setup!
 require("lazy").setup({
 	-- main color scheme
@@ -83,6 +140,7 @@ require("lazy").setup({
 
 		end
 	},
+
 	-- nice bar at the bottom
 	{
 		'itchyny/lightline.vim',
@@ -90,10 +148,12 @@ require("lazy").setup({
 		config = function()
 			-- no need to also show mode in cmd line when we have bar
 			vim.o.showmode = false
+
 			vim.g.lightline = {
 				active = {
 					left = {
 						{ 'mode', 'paste' },
+						{ 'cocstatus', 'readonly' },
 						{ 'readonly', 'filename', 'modified' }
 					},
 					right = {
@@ -106,6 +166,7 @@ require("lazy").setup({
 					filename = 'LightlineFilename'
 				},
 			}
+
 			function LightlineFilenameInLua(opts)
 				if vim.fn.expand('%:t') == '' then
 					return '[No Name]'
@@ -124,6 +185,7 @@ require("lazy").setup({
 			)
 		end
 	},
+
 	-- better %
 	{
 		'andymass/vim-matchup',
@@ -131,6 +193,7 @@ require("lazy").setup({
 			vim.g.matchup_matchparen_offscreen = { method = "popup" }
 		end
 	},
+
 	-- auto-cd to root of git project
 	-- 'airblade/vim-rooter'
 	{
@@ -139,6 +202,7 @@ require("lazy").setup({
 			require('nvim-rooter').setup()
 		end
 	},
+
 	-- plugins/telescope.lua:
 	{
 		'nvim-telescope/telescope.nvim', tag = '0.1.6',
@@ -148,26 +212,28 @@ require("lazy").setup({
 			vim.api.nvim_set_keymap('n','<leader>ff','<cmd>Telescope find_files hidden=true<cr>',{})
 			vim.api.nvim_set_keymap('n','<leader>fg','<cmd>Telescope live_grep additional_args=--hidden<cr>',{})
 			vim.api.nvim_set_keymap('n','<leader>fb','<cmd>Telescope buffers hidden=true<cr>',{})
+			vim.api.nvim_set_keymap('n','<leader>b','<cmd>Telescope buffers hidden=true<cr>',{})
 			vim.api.nvim_set_keymap('n','<leader>fh','<cmd>Telescope help_tags hidden=true<cr>',{})
 		end
 	},
+
 	{
 		'neoclide/coc.nvim', branch = 'release',
 		config = function()
 			-- GoTo code navigation.
 			vim.api.nvim_set_keymap('n','gd','<Plug>(coc-definition)',{silent=true})
-			--			vim.api.nvim_set_keymap('n','gy','<Plug>(coc-type-definition)',{silent=true})
+			vim.api.nvim_set_keymap('n','gy','<Plug>(coc-type-definition)',{silent=true})
 			vim.api.nvim_set_keymap('n','gi','<Plug>(coc-implementation)',{silent=true})
 			vim.api.nvim_set_keymap('n','gr','<Plug>(coc-references)',{silent=true})
 
 			-- GoTo next error
-			vim.api.nvim_set_keymap('n','<leader>je','<Plug>(coc-diagnostic-next-error)',{silent=true})
+			vim.api.nvim_set_keymap('n','<leader>j','<Plug>(coc-diagnostic-next-error)',{silent=true})
 			-- GoTo previous error
-			vim.api.nvim_set_keymap('n','<leader>ke','<Plug>(coc-diagnostic-prev-error)',{ silent = true })
-			-- GoTo next diagnostic
-			vim.api.nvim_set_keymap('n','<leader>j','<Plug>(coc-diagnostic-next)',{})
-			-- GoTo previous diagnostic
-			vim.api.nvim_set_keymap('n','<leader>k','<Plug>(coc-diagnostic-prev)',{})
+			vim.api.nvim_set_keymap('n','<leader>k','<Plug>(coc-diagnostic-prev-error)',{silent=true})
+			-- -- GoTo next diagnostic
+			-- vim.api.nvim_set_keymap('n','<leader>j','<Plug>(coc-diagnostic-next)',{})
+			-- -- GoTo previous diagnostic
+			-- vim.api.nvim_set_keymap('n','<leader>k','<Plug>(coc-diagnostic-prev)',{})
 
 			-- Symbol renaming
 			vim.api.nvim_set_keymap('n','<leader>rn','<Plug>(coc-rename)',{})
@@ -187,6 +253,7 @@ require("lazy").setup({
 			--			vim.api.nvim_set_keymap('n','<leader>qf','<Plug>(coc-fix-current)',{})
 
 			-- Remap keys for applying refactor code actions
+			vim.api.nvim_set_keymap('n','<leader>re','<Plug>(coc-codeaction-refactor)',{silent=true})
 			vim.api.nvim_set_keymap('n','<leader>re','<Plug>(coc-codeaction-refactor)',{silent=true})
 			vim.api.nvim_set_keymap('x','<leader>r','<Plug>(coc-codeaction-refactor-selected)',{silent=true})
 			vim.api.nvim_set_keymap('n','<leader>r','<Plug>(coc-codeaction-refactor-selected)',{silent=true})
@@ -209,15 +276,32 @@ require("lazy").setup({
 			-- Resume latest coc list
 			vim.api.nvim_set_keymap('n','<space>p',':<C-u>CocListResume<CR>',{silent=true,nowait = true})
 
+			-- Add status to lightline
+			vim.opt.statusline:prepend("%{coc#status()}%{get(b:,'coc_current_function','')}")
+
 
 		end
 
 	},
+
 	-- NERDTree
 	{
 		'scrooloose/nerdtree',
 		config = function()
 			vim.api.nvim_set_keymap('n','<leader>nt','<cmd>NERDTreeToggle<cr>',{})
+		end
+	},
+
+	{
+		'tpope/vim-fugitive',
+		config = function()
+		end
+	},
+
+	-- vim-trailing-whitespace
+	{
+		'bronson/vim-trailing-whitespace',
+		config = function()
 		end
 	}
 })

@@ -1,13 +1,21 @@
-"workspace.ignoredFolders": [
-  "$HOME",
-  "$HOME/.cargo/**",
-  "$HOME/.rustup/**"
-],
 {
-    "coc.preferences.formatOnSaveFiletypes": [
-        "rust"
-    ],
-    "coc.preferences.formatOnType": [
-        "rust"
-    ],
+	"workspace.ignoredFolders": [
+		"$HOME",
+		"$HOME/.cargo/**",
+		"$HOME/.rustup/**"
+	],
+	"rust-analyzer.files.excludeDirs": [
+		"$HOME",
+		"$HOME/.cargo/**",
+		"$HOME/.rustup/**"
+	],
+	"coc.preferences.formatOnSaveFiletypes": [
+		"rust",
+		"json"
+	],
+	"coc.preferences.formatOnSaveFiletypes": [
+		"rust",
+		"json"
+	],
+	"coc.preferences.formatOnType": true,
 }
