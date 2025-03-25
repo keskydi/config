@@ -109,7 +109,8 @@ vim.api.nvim_create_autocmd('LspAttach', {
 		-- FIXME add bqf for fzf and more on quicklist
 		-- Use 'setqflist' instead of 'setloclist' to get diagnostic from all files and not only current
 		vim.keymap.set('n', '<leader>q', vim.diagnostic.setqflist, { desc = 'Open diagnostic [Q]uickfix list' })
-		-- vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+		vim.keymap.set('n', '<leader>lq', vim.diagnostic.setloclist,
+			{ desc = 'Open diagnostic [Lo]ocal [Q]uickfix list' })
 
 		-- Buffer local mappings.
 		-- See `:help vim.lsp.*` for documentation on any of the below functions
