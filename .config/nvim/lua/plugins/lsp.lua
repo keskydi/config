@@ -9,7 +9,8 @@ return {
 		"hrsh7th/cmp-path",
 		"hrsh7th/nvim-cmp",
 		"neovim/nvim-lspconfig",
-		'mrcjkb/rustaceanvim',
+		"mrcjkb/rustaceanvim",
+		"L3MOD4D3/LuaSnip",
 		{ 'mrcjkb/rustaceanvim', version = '^5', --[[ Recommended --]] lazy = false, --[[ This plugin is already lazy --]] },
 	},
 	opts = {
