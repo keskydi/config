@@ -103,8 +103,8 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
 		-- Diagnostic keymaps
 		-- See `:help vim.diagnostic.*` for documentation on any of the below functions
-		vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
-		vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
+		vim.keymap.set('n', '<leader>j', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
+		vim.keymap.set('n', '<leader>k', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
 		vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
 		-- FIXME add bqf for fzf and more on quicklist
 		-- Use 'setqflist' instead of 'setloclist' to get diagnostic from all files and not only current
@@ -119,18 +119,19 @@ vim.api.nvim_create_autocmd('LspAttach', {
 		vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
 		vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
 		vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-		-- vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-		-- vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
-		-- vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
-		-- vim.keymap.set('n', '<leader>wl', function()
-		-- 	print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-		-- end, opts)
+		vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+		vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
+		vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
+		vim.keymap.set('n', '<leader>wl', function()
+			print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+		end, opts)
 		-- vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
 		vim.keymap.set('n', '<leader>r', vim.lsp.buf.rename, opts)
 		vim.keymap.set({ 'n', 'v' }, '<leader>a', vim.lsp.buf.code_action, opts)
 		vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
 		vim.keymap.set('n', '<leader>f', function()
-			vim.lsp.buf.format { async = true }
+			-- vim.lsp.buf.format { async = true }
+			vim.lsp.buf.format()
 		end, opts)
 
 		local client = vim.lsp.get_client_by_id(ev.data.client_id)
@@ -143,12 +144,60 @@ vim.api.nvim_create_autocmd('LspAttach', {
 			end,
 		})
 
+		-- -- TODO Check is quicklist is currently enable
+		-- vim.api.nvim_create_autocmd('DiagnosticChanged', {
+		-- 	callback = function(args)
+		-- 		if filter(getwininfo(), 'v:val.quickfix && !v:val.loclist') ~= nil then
+		-- 			vim.diagnostic.setqflist()
+		-- 		end
+		-- 	end,
+		-- })
+
+		vim.diagnostic.config({
+			virtual_text = true,
+			-- virtual_lines = { current_line = true },
+			-- underline = true,
+			update_in_insert = true
+		})
+
 		-- None of this semantics tokens business.
 		-- https://www.reddit.com/r/neovim/comments/143efmd/is_it_possible_to_disable_treesitter_completely/
 		client.server_capabilities.semanticTokensProvider = nil
 	end
 
 })
+
+-- local og_virt_text
+-- local og_virt_line
+-- vim.api.nvim_create_autocmd({ 'CursorMoved', 'DiagnosticChanged' }, {
+--   group = vim.api.nvim_create_augroup('diagnostic_only_virtlines', {}),
+--   callback = function()
+--     if og_virt_line == nil then
+--       og_virt_line = vim.diagnostic.config().virtual_lines
+--     end
+--
+--     -- ignore if virtual_lines.current_line is disabled
+--     if not (og_virt_line and og_virt_line.current_line) then
+--       if og_virt_text then
+--         vim.diagnostic.config({ virtual_text = og_virt_text })
+--         og_virt_text = nil
+--       end
+--       return
+--     end
+--
+--     if og_virt_text == nil then
+--       og_virt_text = vim.diagnostic.config().virtual_text
+--     end
+--
+--     local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+--
+--     if vim.tbl_isempty(vim.diagnostic.get(0, { lnum = lnum })) then
+--       vim.diagnostic.config({ virtual_text = og_virt_text })
+--     else
+--       vim.diagnostic.config({ virtual_text = false })
+--     end
+--   end
+-- })
 -------------------------------------------------------------------------------
 --
 -- plugin configuration

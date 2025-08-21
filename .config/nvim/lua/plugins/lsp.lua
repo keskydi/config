@@ -10,8 +10,10 @@ return {
 		"hrsh7th/nvim-cmp",
 		"neovim/nvim-lspconfig",
 		"mrcjkb/rustaceanvim",
-		"L3MOD4D3/LuaSnip",
-		{ 'mrcjkb/rustaceanvim', version = '^5', --[[ Recommended --]] lazy = false, --[[ This plugin is already lazy --]] },
+		"L3MON4D3/LuaSnip",
+		-- trying
+		"chrisgrieser/nvim-lsp-endhints",
+		 { 'mrcjkb/rustaceanvim', version = '^6', --[[ Recommended --]] lazy = false, --[[ This plugin is already lazy --]] },
 	},
 	opts = {
 		inlay_hints = { enabled = true },
@@ -22,6 +24,21 @@ return {
 		-- Python
 		lspconfig.pyright.setup {}
 
+		require("lsp-endhints").setup {}
+
+		vim.g.rustaceanvim = {
+			-- LSP configuration
+			server = {
+				default_settings = {
+					-- rust-analyzer language server configuration
+					['rust-analyzer'] = {
+						rustfmt = {
+							extraArgs = { "+nightly", },
+						},
+					},
+				},
+			},
+		}
 		-- -- Typescript , Javascript
 		-- lspconfig.tsserver.setup {}
 
@@ -67,14 +84,19 @@ return {
 				end,
 			},
 			mapping = cmp.mapping.preset.insert({
-				-- ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-				-- ['<C-f>'] = cmp.mapping.scroll_docs(4),
+				['<C-b>'] = cmp.mapping.scroll_docs(-4),
+				['<C-f>'] = cmp.mapping.scroll_docs(4),
 				['<C-Space>'] = cmp.mapping.complete(),
-				-- ['<C-e>'] = cmp.mapping.abort(),
+				['<C-e>'] = cmp.mapping.abort(),
 				-- Accept currently selected item.
 				-- Set `select` to `false` to only confirm explicitly selected items.
 				['<C-y>'] = cmp.mapping.confirm({ select = true }),
 			}),
+			-- sources = cmp.config.sources({
+			-- 	{ name = "nvim_lsp" },
+			-- }, {
+			-- 	{ name = "path" },
+			-- }),
 			sources = cmp.config.sources({
 				{ name = "nvim_lsp" },
 				{ name = "nvim_lsp_signature_help" },
