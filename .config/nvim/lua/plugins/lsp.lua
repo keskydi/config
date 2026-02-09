@@ -19,10 +19,9 @@ return {
 		inlay_hints = { enabled = true },
 	},
 	config = function()
-		local lspconfig = require('lspconfig')
 
 		-- Python
-		lspconfig.pyright.setup {}
+		vim.lsp.enable('pyright')
 
 		require("lsp-endhints").setup {}
 
@@ -43,7 +42,7 @@ return {
 		-- lspconfig.tsserver.setup {}
 
 		-- Lua
-		lspconfig.lua_ls.setup {
+		vim.lsp.enable('lua_ls', {
 			on_init = function(client)
 				local path = client.workspace_folders[1].name
 				if vim.loop.fs_stat(path .. '/.luarc.json') or vim.loop.fs_stat(path .. '/.luarc.jsonc') then
@@ -73,7 +72,7 @@ return {
 			settings = {
 				Lua = {}
 			}
-		}
+		})
 
 		local cmp = require 'cmp'
 		cmp.setup({

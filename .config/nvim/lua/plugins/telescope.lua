@@ -35,5 +35,9 @@ return {
 		vim.api.nvim_set_keymap('n', '<leader>fb', '<cmd>Telescope buffers hidden=true<cr>', {})
 		vim.api.nvim_set_keymap('n', '<leader>b', '<cmd>Telescope buffers hidden=true<cr>', {})
 		vim.api.nvim_set_keymap('n', '<leader>fh', '<cmd>Telescope help_tags hidden=true<cr>', {})
+		vim.api.nvim_set_keymap('n', '<leader>fr', '<cmd>Telescope resume hidden=true<cr>', {})
+		vim.api.nvim_set_keymap('n', '<leader>fs', '<cmd>Telescope lsp_document_symbols hidden=true<cr>', {})
+		-- builtin.lsp_workspace_symbols
+		-- builtin.lsp_dynamic_workspace_symbols
 	end
 }
